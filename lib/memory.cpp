@@ -15,10 +15,9 @@ void Memory::Write(uint8_t addr, uint8_t data)
     if (addr < 0x1000)
         mem[addr] = data;
 }
-uint8_t Memory::Fetch(uint8_t addr)
+uint16_t Memory::Fetch(uint16_t PC)
 {
-    if (addr < 0x1000)
-        return mem[addr];
+    return mem[PC&0xFFF]*0x100 + mem[(PC+1)&0xFFF];
 }
 void Memory::CopyProgram(const char* path)
 {
@@ -37,5 +36,6 @@ void Memory::CopyProgram(const char* path)
     std::cout << "The file length is: " << fsize << "\n";
 
     fread(&mem[0x200], sizeof(uint8_t), fsize, f);
+
     std::cout << "Program inserted successfully!" << "\n";
 }

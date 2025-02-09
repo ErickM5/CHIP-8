@@ -1,10 +1,5 @@
 #include "IOdevices.hpp"
 
-Display::~Display()
-{
-    
-}
-
 void Display::Init()
 {
     std::cout << "Initializing display device" << "\n";
@@ -23,6 +18,11 @@ void Display::Init()
 
 void Display::Print(){}
 void Display::Clear(){}
+Display::~Display()
+{
+    SDL_DestroyWindow(window);
+    SDL_DestroyRenderer(renderer);
+}
 
 Sounder::Sounder(){}
 void Sounder::Play(){}
@@ -58,18 +58,24 @@ void Keyboard::HandleEvent()
         switch(event.type)
         {            
             case SDL_QUIT:
-                (bool&)ON_OFFptr = true;
+                *ON_OFFptr = false;
                 break;
             case SDL_KEYDOWN:
                 switch(event.key.keysym.sym)
                 {
-                    case SDLK_ESCAPE: (bool&)ON_OFFptr = true; break;
-                    case SDLK_SPACE: (bool&)PAUSEptr = true; break;
+                    std::cout << event.key.keysym.sym << "\n";
+                    // std::cout << *ON_OFFptr << "\n";
+                    case SDLK_ESCAPE: 
+                        *ON_OFFptr = false; 
+                        std::cout << *ON_OFFptr << "\n";
+                        break;
+                    case SDLK_SPACE: 
+                        *PAUSEptr = *PAUSEptr == false;
+                        std::cout << "GAME PAUSED" << "\n";
+                        std::cout << *PAUSEptr << "\n";
+                        break;
 
                     default:
-                        if (event.key.keysym.sym == SDLK_SPACE)
-                            std::cout << "GAME PAUSED" << "\n";
-
                         if (keys.find(event.key.keysym.sym) != keys.end())
                             keys[event.key.keysym.sym] = true;
 
@@ -81,7 +87,14 @@ void Keyboard::HandleEvent()
     }
 }
 
-void IODevices::Initialize(bool* vON_OFFptr, bool* vPAUSEptr)
+IODevices::~IODevices()
+{
+    disp->~Display();
+    sound->~Sounder();
+    keyb->~Keyboard();
+}
+
+IODevices::IODevices(bool* vON_OFFptr, bool* vPAUSEptr)
 {
     std::cout << "Intinializing display controller" << "\n";
     disp = new Display();
@@ -93,6 +106,7 @@ void IODevices::Initialize(bool* vON_OFFptr, bool* vPAUSEptr)
     std::cout << "Intinializing sound controller" << "\n";
     keyb = new Keyboard(vON_OFFptr, vPAUSEptr);
 }
+
 void IODevices::StartAll(bool Print, bool Sound)
 {
     keyb->HandleEvent();

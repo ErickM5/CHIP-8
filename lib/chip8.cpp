@@ -18,8 +18,7 @@ Chip8::Chip8(const char* path)
     mem = new Memory();
 
     std::cout << "Starting IODevices" << "\n";
-    devcs = new IODevices();
-    devcs->Initialize(&ON_OFF, &PAUSE);
+    devcs = new IODevices(&ON_OFF, &PAUSE);
     
     std::cout << "Setting memory pointers" << "\n";
     mem->SetPtrs(0xEA0, 0xEFF, Stack);
@@ -34,13 +33,13 @@ Chip8::Chip8(const char* path)
 
 void Chip8::Fetch()
 {
-    content = (mem->Fetch(PC & 0xFFF)*0x100 + mem->Fetch((PC+1) & 0xFFF));
+    content = mem->Fetch(PC);
 
     nnn = (content >> 0) & 0xFFF;
     kk = (content >> 0) & 0xFF;
-    x = (content >> 8) & 0x8;
-    y = (content << 8) & 0x8;
-    n = (content << 12) & 0xF;
+    x = (content >> 8) & 0xF;
+    y = (content >> 4) & 0xF;
+    n = (content >> 0) & 0xF;
     op = (content >> 12) & 0xF;
 }
 void Chip8::Execute()
@@ -49,10 +48,7 @@ void Chip8::Execute()
     Opcodes(o) {}
     #undef o
 
-    if (AddPC)
-        PC+=2;
-    
-    AddPC = true;
+    PC+=2;
 }
 void Chip8::Debug()
 {
@@ -71,15 +67,23 @@ void Chip8::Start(bool KeepAlive)
     ON_OFF = true;
     while (ON_OFF)
     {
-        while (!PAUSE){continue;}
+        while (PAUSE){continue;}
 
         Fetch();
         Execute();
-        // Debug();
+        
+        // std::cout << "Hexadecimal value: 0x" 
+        //     << std::setw(4) << std::setfill('0') << std::hex << std::uppercase << content
+        //     << std::endl;
+        Debug();
 
         devcs->StartAll(WindowActive, SoundActive);
 
         if ((!KeepAlive && content==0x0) || !ON_OFF)
             break;
     }
+
+    std::cout << "Turning off CHIP-8..." << "\n";
+    devcs->~IODevices();
+    mem->~Memory();
 }

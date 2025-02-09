@@ -36,13 +36,12 @@ struct Sounder
         SDL_AudioSpec specs;
 
         const int frenquency = 60;
-        const unsigned format = AUDIO_S8;
+        const unsigned format = AUDIO_S16SYS;
         const unsigned channels = SDL_GL_STEREO;
         const int samples = 512;
 
     public:
         Sounder();
-        ~Sounder();
 
         void Play();
         void Stop();
@@ -58,7 +57,6 @@ class Keyboard
     
     public:
         Keyboard(bool* vON_OFFptr, bool* vPAUSEptr);
-        ~Keyboard();
         void HandleEvent();
 };
 
@@ -70,7 +68,7 @@ class IODevices
         Keyboard* keyb;
 
     public:
+        IODevices(bool* vON_OFFptr, bool* vPAUSEptr);
         ~IODevices();
-        void Initialize(bool* vON_OFFptr, bool* vPAUSEptr);
         void StartAll(bool Print, bool Sound);
 };

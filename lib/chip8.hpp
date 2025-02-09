@@ -3,6 +3,7 @@
 
 #include <cstdlib>
 #include <string>
+#include <iomanip>
 
 #define Opcodes(o) \
     o("SYS", "0nnn", op==0x0 && nnn!=0 ,    PC=nnn; AddPC = false;) \
@@ -74,8 +75,8 @@ class Chip8
         Memory* mem = nullptr; // memory object pointer
         IODevices* devcs = nullptr; // devices (sound and display) pointers
         
-        bool WindowActive; // Tells if is necessary to call display device
-        bool SoundActive; // Tells if is necessary to call Sound device
+        bool WindowActive = false; // Tells if is necessary to call display device
+        bool SoundActive = true; // Tells if is necessary to call Sound device
 
         bool AddPC = true; // Garantee if is necessary step next instruction
 
@@ -95,8 +96,8 @@ class Chip8
 
         uint16_t content = 0x1;
 
-        bool ON_OFF; // Set state of it is to be on or off
-        bool PAUSE; // Set state of it is to be pause or not
+        bool ON_OFF = true; // Set state of it is to be on or off
+        bool PAUSE = false; // Set state of it is to be pause or not
 
         Chip8(const char* path); // Constructor
 
