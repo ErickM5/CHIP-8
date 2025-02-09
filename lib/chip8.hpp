@@ -1,8 +1,5 @@
 #include <memory.hpp>
-
-#include <stdint.h>
-#include <stdio.h>
-#include <stdlib.h>
+#include <IOdevices.hpp>
 
 #include <cstdlib>
 #include <string>
@@ -74,7 +71,8 @@ class Chip8
         uint8_t* FrameBuffer[64*32/8]; // 64:32 length but each byte in horizontal represents 8 pixels (1 pixel -> 1 bit)
         uint8_t* Stack[96]; // Stack pointer list pointing to memory
 
-        Memory* mem; // memory object pointer
+        Memory* mem = nullptr; // memory object pointer
+        IODevices* devcs = nullptr; // devices (sound and display) pointers
         
         bool WindowActive; // Tells if is necessary to call display device
         bool SoundActive; // Tells if is necessary to call Sound device
@@ -97,13 +95,14 @@ class Chip8
 
         uint16_t content = 0x1;
 
-        bool OFF; // Set state of it is to be on or off
+        bool ON_OFF; // Set state of it is to be on or off
         bool PAUSE; // Set state of it is to be pause or not
 
         Chip8(const char* path); // Constructor
 
-        void InsertProgram(const char* path);
-        void Execute(bool KeepAlive = false); // Execute the current opcode
+        void Start(bool KeepAlive); // Main function which keep tracking the states and other devices
+
+        void Execute(); // Execute the current opcode
         void Fetch(); // Fetch infos from program the informations
 
         // if Terminal then print infos in terminal, if also screen then print in the screen game also

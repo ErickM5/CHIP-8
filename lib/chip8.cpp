@@ -3,34 +3,33 @@
 
 int main(int argc, char* argv[])
 {
+    std::cout << "Warming up chip 8 ..." << "\n";
     Chip8 cpu(argv[1]);
     
+    std::cout << "Starting chip 8!" << "\n";
+    cpu.Start(true);
+
     return 0;
 }
 
 Chip8::Chip8(const char* path)
 {
-    InsertProgram(path);
+    std::cout << "Starting Memory device" << "\n";
+    mem = new Memory();
 
-    mem->SetPtrs(0xF00, 0xFFF, FrameBuffer);
+    std::cout << "Starting IODevices" << "\n";
+    devcs = new IODevices();
+    
+    std::cout << "Setting memory pointers" << "\n";
     mem->SetPtrs(0xEA0, 0xEFF, Stack);
-
+    mem->SetPtrs(0xF00, 0xFFF, FrameBuffer);
+    
+    std::cout << "Inserting the program" << "\n";
+    mem->CopyProgram(path);
+    
     PC = 0x200;
 }
 
-void Chip8::InsertProgram(const char* path)
-{
-    FILE* f = fopen(path, "rb");
-
-    if(f == NULL)
-        return;
-
-    fseek(f, 0, SEEK_END);
-    unsigned fsize = ftell(f);
-    fseek(f, 0, SEEK_SET);
-    for (int i = 0; i<fsize; i++)
-        mem->Write(Chip8::memStart + i, fgetc(f));
-}
 
 void Chip8::Fetch()
 {
@@ -43,23 +42,16 @@ void Chip8::Fetch()
     n = (content << 12) & 0xF;
     op = (content >> 12) & 0xF;
 }
-void Chip8::Execute(bool KeepAlive = false)
+void Chip8::Execute()
 {
-    while (content != 0x0)
-    {
-        while (!PAUSE){continue;}
+    #define o(name, mnemonic, params, func) if(params){func;} else
+    Opcodes(o) {}
+    #undef o
 
-        Fetch();
-
-        #define o(name, mnemonic, params, func) if(params){func;} else
-        Opcodes(o) {}
-        #undef o
-
-        Debug();
-
-        if (KeepAlive && OFF)
-            break;
-    }
+    if (AddPC)
+        PC+=2;
+    
+    AddPC = true;
 }
 void Chip8::Debug()
 {
@@ -71,4 +63,20 @@ void Chip8::Debug()
 void Chip8::SetDebugText(std::string text)
 {
     std::cout << text << "\n";
+}
+
+void Chip8::Start(bool KeepAlive)
+{
+    ON_OFF = true;
+    while (ON_OFF)
+    {
+        while (!PAUSE){continue;}
+
+        Fetch();
+        Execute();
+        Debug();
+
+        if ((!KeepAlive && content==0x0) || !ON_OFF)
+            break;
+    }
 }
