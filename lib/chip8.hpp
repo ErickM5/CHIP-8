@@ -28,7 +28,7 @@
     o("LD",  "Annn", op==0xA,               I = nnn;) \
     o("JP",  "Bnnn", op==0xB,               PC = V[0x0] + nnn; AddPC = false;) \
     o("RND", "Cxkk", op==0xC,               V[x]=(rand()%256)&kk;) \
-    o("DRW", "Dxyn", op==0xD,               )
+    o("DRW", "Dxyn", op==0xD,               WindowActive = true;)
 
 #define Debugger(d) \
     d(op==0x0 && nnn!=0 ,   SetDebugText("SYS");) \

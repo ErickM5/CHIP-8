@@ -19,6 +19,7 @@ Chip8::Chip8(const char* path)
 
     std::cout << "Starting IODevices" << "\n";
     devcs = new IODevices();
+    devcs->Initialize(&ON_OFF, &PAUSE);
     
     std::cout << "Setting memory pointers" << "\n";
     mem->SetPtrs(0xEA0, 0xEFF, Stack);
@@ -74,7 +75,9 @@ void Chip8::Start(bool KeepAlive)
 
         Fetch();
         Execute();
-        Debug();
+        // Debug();
+
+        devcs->StartAll(WindowActive, SoundActive);
 
         if ((!KeepAlive && content==0x0) || !ON_OFF)
             break;
