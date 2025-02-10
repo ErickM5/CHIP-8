@@ -15,9 +15,13 @@ void Memory::Write(uint8_t addr, uint8_t data)
     if (addr < 0x1000)
         mem[addr] = data;
 }
-uint16_t Memory::Fetch(uint16_t PC)
+uint16_t Memory::Fetch16(uint16_t addr)
 {
-    return mem[PC&0xFFF]*0x100 + mem[(PC+1)&0xFFF];
+    return mem[addr&0xFFF]*0x100 + mem[(addr+1)&0xFFF];
+}
+uint8_t Memory::Fetch8(uint8_t addr)
+{
+    return mem[addr];
 }
 void Memory::CopyProgram(const char* path)
 {

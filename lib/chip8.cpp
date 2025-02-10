@@ -33,8 +33,8 @@ Chip8::Chip8(const char* path)
 
 void Chip8::Fetch()
 {
-    content = mem->Fetch(PC);
-
+    content = mem->Fetch16(PC);
+    
     nnn = (content >> 0) & 0xFFF;
     kk = (content >> 0) & 0xFF;
     x = (content >> 8) & 0xF;
@@ -47,7 +47,7 @@ void Chip8::Execute()
     #define o(name, mnemonic, params, func) if(params){func;} else
     Opcodes(o) {}
     #undef o
-
+    
     PC+=2;
 }
 void Chip8::Debug()
@@ -72,9 +72,9 @@ void Chip8::Start(bool KeepAlive)
         Fetch();
         Execute();
         
-        // std::cout << "Hexadecimal value: 0x" 
-        //     << std::setw(4) << std::setfill('0') << std::hex << std::uppercase << content
-        //     << std::endl;
+        std::cout << "Hexadecimal value: 0x" 
+            << std::setw(4) << std::setfill('0') << std::hex << std::uppercase << content
+            << std::endl;
         Debug();
 
         devcs->StartAll(WindowActive, SoundActive);

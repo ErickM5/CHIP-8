@@ -32,5 +32,7 @@ class Memory
         void SetPtrs(uint8_t start, uint8_t end, uint8_t* list[]);
         void CopyProgram(const char* path);
         void Write(uint8_t addr, uint8_t data);
-        uint16_t Fetch(uint16_t PC);
+
+        uint16_t Fetch16(uint16_t addr);
+        uint8_t Fetch8(uint8_t addr);
 };

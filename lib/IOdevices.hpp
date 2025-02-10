@@ -63,12 +63,13 @@ class Keyboard
 class IODevices
 {
     private:
-        Display* disp;
         Sounder* sound;
         Keyboard* keyb;
-
+    
     public:
+        Display* disp;
+
         IODevices(bool* vON_OFFptr, bool* vPAUSEptr);
         ~IODevices();
-        void StartAll(bool Print, bool Sound);
+        void StartAll(bool& Print, bool& Sound);
 };

@@ -29,7 +29,12 @@
     o("LD",  "Annn", op==0xA,               I = nnn;) \
     o("JP",  "Bnnn", op==0xB,               PC = V[0x0] + nnn; AddPC = false;) \
     o("RND", "Cxkk", op==0xC,               V[x]=(rand()%256)&kk;) \
-    o("DRW", "Dxyn", op==0xD,               WindowActive = true;)
+    o("DRW", "Dxyn", op==0xD,\
+        for (int i; i < n; i++){ \
+            for (int b =0; b < 8; b++){ \
+                *devcs->disp->FrameBuffer[i+b+1] = (((*FrameBuffer[i] >> b) & 0b1) ^ mem->Fetch8(I+i)); \
+                V[0xF]=(((*FrameBuffer[i] >> b) & 0b1) ^ mem->Fetch8(I+i));WindowActive = true;}} \
+    )
 
 #define Debugger(d) \
     d(op==0x0 && nnn!=0 ,   SetDebugText("SYS");) \

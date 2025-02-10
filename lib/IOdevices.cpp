@@ -16,7 +16,10 @@ void Display::Init()
     std::cout << "Display initialize successfully" << "\n";
 }
 
-void Display::Print(){}
+void Display::Print()
+{
+    std::cout << "requested to print" << "\n";
+}
 void Display::Clear(){}
 Display::~Display()
 {
@@ -107,13 +110,18 @@ IODevices::IODevices(bool* vON_OFFptr, bool* vPAUSEptr)
     keyb = new Keyboard(vON_OFFptr, vPAUSEptr);
 }
 
-void IODevices::StartAll(bool Print, bool Sound)
+void IODevices::StartAll(bool& Print, bool& Sound)
 {
     keyb->HandleEvent();
 
     if (Print)
+    {
         disp->Print();
+        Print = false;
+    }
 
     // if (Sound)
     //     sound->Play();
+
+    SDL_Delay(1000);
 }
