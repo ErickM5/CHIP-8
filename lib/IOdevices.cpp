@@ -123,5 +123,5 @@ void IODevices::StartAll(bool& Print, bool& Sound)
     // if (Sound)
     //     sound->Play();
 
-    SDL_Delay(1000);
+    SDL_Delay(750);
 }

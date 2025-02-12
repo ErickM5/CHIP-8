@@ -4,10 +4,10 @@
 #include <string.h>
 #include <stdio.h>
 
+#include <iomanip>
 class Memory
 {
     private:
-        uint8_t mem[64*32] = {0};
         unsigned font[80] = {
             0xF0, 0x90, 0x90, 0x90, 0xF0, // 0
             0x20, 0x60, 0x20, 0x20, 0x70, // 1
@@ -28,11 +28,10 @@ class Memory
         };
 
     public:
-        Memory();
+        uint8_t mem[64*32] = {0};
+        Memory(const char* path);
         void SetPtrs(uint8_t start, uint8_t end, uint8_t* list[]);
-        void CopyProgram(const char* path);
         void Write(uint8_t addr, uint8_t data);
 
-        uint16_t Fetch16(uint16_t addr);
-        uint8_t Fetch8(uint8_t addr);
+        uint8_t* Fetch(uint8_t addr);
 };

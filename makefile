@@ -5,7 +5,7 @@ LDFLAGS   = `sdl2-config --libs`
 SRC_DIR   = lib
 OBJS      = $(SRC_DIR)/chip8.o $(SRC_DIR)/memory.o $(SRC_DIR)/IOdevices.o
 
-all: main clean
+all: clean main clean
 
 main: $(OBJS)
 	$(CXX) $(OBJS) -o main $(LDFLAGS)

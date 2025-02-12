@@ -15,7 +15,7 @@ int main(int argc, char* argv[])
 Chip8::Chip8(const char* path)
 {
     std::cout << "Starting Memory device" << "\n";
-    mem = new Memory();
+    mem = new Memory(path);
 
     std::cout << "Starting IODevices" << "\n";
     devcs = new IODevices(&ON_OFF, &PAUSE);
@@ -25,7 +25,6 @@ Chip8::Chip8(const char* path)
     mem->SetPtrs(0xF00, 0xFFF, FrameBuffer);
     
     std::cout << "Inserting the program" << "\n";
-    mem->CopyProgram(path);
     
     PC = 0x200;
 }
@@ -33,28 +32,33 @@ Chip8::Chip8(const char* path)
 
 void Chip8::Fetch()
 {
-    content = mem->Fetch16(PC);
+    content = (mem->mem[PC] << 8) | (mem->mem[PC+1]);
+    std::cout << "Opcode value 0x" << std::hex << std::setfill('0') << std::setw(4) << ((mem->mem[PC] << 8) | (mem->mem[PC+1])) << "\n";
+    std::cout << "PC address content: " << PC << "\n";
     
-    nnn = (content >> 0) & 0xFFF;
-    kk = (content >> 0) & 0xFF;
-    x = (content >> 8) & 0xF;
-    y = (content >> 4) & 0xF;
-    n = (content >> 0) & 0xF;
+    nnn = content & 0x08FF;
+    kk = content & 0x00FF;
+    x = (content << 4) & 0x800;
+    y = (content >> 4) & 0x008;
     op = (content >> 12) & 0xF;
+
+    PC+=2;
+    // if (AddPC) // Checks if is necessary go to next opcode because some opcodes jump to some parts of memorys
+    //     PC+=2;
+    
+    // AddPC = true; // Always reset the variable to goto next instruction
 }
 void Chip8::Execute()
 {
     #define o(name, mnemonic, params, func) if(params){func;} else
     Opcodes(o) {}
     #undef o
-    
-    PC+=2;
 }
 void Chip8::Debug()
 {
     #define d(params, print) if(params){print;} else
     Debugger(d) {}
-    #undef o   
+    #undef d
 }
 
 void Chip8::SetDebugText(std::string text)
@@ -65,6 +69,8 @@ void Chip8::SetDebugText(std::string text)
 void Chip8::Start(bool KeepAlive)
 {
     ON_OFF = true;
+    PC = 0x200;
+
     while (ON_OFF)
     {
         while (PAUSE){continue;}
@@ -72,10 +78,10 @@ void Chip8::Start(bool KeepAlive)
         Fetch();
         Execute();
         
-        std::cout << "Hexadecimal value: 0x" 
-            << std::setw(4) << std::setfill('0') << std::hex << std::uppercase << content
-            << std::endl;
-        Debug();
+        // std::cout << "Hexadecimal value: 0x" 
+        //     << std::setw(4) << std::setfill('0') << std::hex << std::uppercase << content
+        //     << std::endl;
+        // Debug();
 
         devcs->StartAll(WindowActive, SoundActive);
 

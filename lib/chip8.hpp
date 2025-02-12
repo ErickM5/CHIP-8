@@ -32,8 +32,8 @@
     o("DRW", "Dxyn", op==0xD,\
         for (int i; i < n; i++){ \
             for (int b =0; b < 8; b++){ \
-                *devcs->disp->FrameBuffer[i+b+1] = (((*FrameBuffer[i] >> b) & 0b1) ^ mem->Fetch8(I+i)); \
-                V[0xF]=(((*FrameBuffer[i] >> b) & 0b1) ^ mem->Fetch8(I+i));WindowActive = true;}} \
+                *devcs->disp->FrameBuffer[i+b+1] = (((*FrameBuffer[i] >> b) & 0b1) ^ mem->mem[I+i]); \
+                V[0xF]=(((*FrameBuffer[i] >> b) & 0b1) ^ mem->mem[I+i]);WindowActive = true;}} \
     )
 
 #define Debugger(d) \
@@ -99,7 +99,7 @@ class Chip8
 
         uint8_t op; // opcode check
 
-        uint16_t content = 0x1;
+        unsigned content;
 
         bool ON_OFF = true; // Set state of it is to be on or off
         bool PAUSE = false; // Set state of it is to be pause or not
