@@ -28,9 +28,11 @@ class Memory
         };
 
     public:
-        uint8_t mem[64*32] = {0};
         Memory(const char* path);
-        void SetPtrs(uint8_t start, uint8_t end, uint8_t* list[]);
+
+        uint8_t mem[64*32] = {0};
+        void printKeY();
+        void SetPtrs(uint16_t start, uint16_t end, uint8_t* list[]);
         void Write(uint8_t addr, uint8_t data);
 
         uint8_t* Fetch(uint8_t addr);

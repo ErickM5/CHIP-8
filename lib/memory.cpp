@@ -19,16 +19,14 @@ Memory::Memory(const char* path)
     std::cout << "The file length is: " << fsize << "\n";
 
     fread(&mem[0x200], sizeof(uint8_t), fsize, f);
-    for (int i = 0; i < sizeof(mem) - 0x200; i+=2)
-    {
-        std::cout << "0x" << std::hex << std::setfill('0') << std::setw(4) << ((mem[i+0x200] << 8) | (mem[i+1+0x200])) << "\n";
-        std::cout << "PC test " << i + 0x200 << "\n";
-    }
-
-    std::cout << "Program inserted successfully!" << "\n";
+    // for (int i = 0; i < sizeof(mem) - 0x200; i+=2)
+    // {
+    //     // std::cout << "0x" << std::hex << std::setfill('0') << std::setw(4) << ((mem[i+0x200] << 8) | (mem[i+1+0x200])) << "\n";
+    //     // std::cout << "PC test " << i + 0x200 << "\n";
+    // }
 }
 
-void Memory::SetPtrs(uint8_t start, uint8_t end, uint8_t* list[])
+void Memory::SetPtrs(uint16_t start, uint16_t end, uint8_t* list[])
 {
     for (int i = 0; i < sizeof(list); i++)
         list[i] = &mem[i + start];

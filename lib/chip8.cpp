@@ -13,7 +13,7 @@ int main(int argc, char* argv[])
 }
 
 Chip8::Chip8(const char* path)
-{
+{ 
     std::cout << "Starting Memory device" << "\n";
     mem = new Memory(path);
 
@@ -33,7 +33,7 @@ Chip8::Chip8(const char* path)
 void Chip8::Fetch()
 {
     content = (mem->mem[PC] << 8) | (mem->mem[PC+1]);
-    std::cout << "Opcode value 0x" << std::hex << std::setfill('0') << std::setw(4) << ((mem->mem[PC] << 8) | (mem->mem[PC+1])) << "\n";
+    std::cout << "0x" << std::hex << std::setfill('0') << std::setw(4) << ((mem->mem[PC] << 8) | (mem->mem[PC+1])) << "\n";
     std::cout << "PC address content: " << PC << "\n";
     
     nnn = content & 0x08FF;
@@ -71,17 +71,23 @@ void Chip8::Start(bool KeepAlive)
     ON_OFF = true;
     PC = 0x200;
 
+    // for (int i = 0; i < sizeof(mem->mem) - 0x200; i+=2)
+    // {
+    //     std::cout << "0x" << std::hex << std::setfill('0') << std::setw(4) << ((mem->mem[i+0x200] << 8) | (mem->mem[i+1+0x200])) << "\n";
+    //     std::cout << "PC test " << i + 0x200 << "\n";
+    // }; return;
+
     while (ON_OFF)
     {
         while (PAUSE){continue;}
 
         Fetch();
-        Execute();
+        // Execute();
         
         // std::cout << "Hexadecimal value: 0x" 
         //     << std::setw(4) << std::setfill('0') << std::hex << std::uppercase << content
         //     << std::endl;
-        // Debug();
+        Debug();
 
         devcs->StartAll(WindowActive, SoundActive);
 

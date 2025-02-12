@@ -7,7 +7,7 @@
 
 #define Opcodes(o) \
     o("SYS", "0nnn", op==0x0 && nnn!=0 ,    PC=nnn; AddPC = false;) \
-    o("CLS", "0E00", op==0x0 && y==0xE,     for(auto& i : FrameBuffer){i=0x0;}) \
+    o("CLS", "00E0", op==0x0 && y==0xE,     for(auto& i : FrameBuffer){i=0x0;}) \
     o("RET", "00EE", op==0x0 && kk==0xEE,   PC=0x200; AddPC = false;) \
     o("JP",  "1nnn", op==0x1,               PC=nnn; AddPC = false;) \
     o("CALL","2nnn", op==0x2,               SP++; PC=nnn; AddPC = false;) \
@@ -65,7 +65,6 @@
 class Chip8
 {
     private:
-        const uint8_t memStart = 0x200; // Start point at memory insert
 
         uint8_t V[16]; // V0 -> VF registers
         uint16_t I; // Index register
