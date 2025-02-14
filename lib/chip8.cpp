@@ -31,22 +31,20 @@ Chip8::Chip8(const char* path)
 
 
 void Chip8::Fetch()
-{
-    content = (mem->mem[PC] << 8) | (mem->mem[PC+1]);
-    std::cout << "0x" << std::hex << std::setfill('0') << std::setw(4) << ((mem->mem[PC] << 8) | (mem->mem[PC+1])) << "\n";
-    std::cout << "PC address content: " << PC << "\n";
-    
-    nnn = content & 0x08FF;
-    kk = content & 0x00FF;
-    x = (content << 4) & 0x800;
-    y = (content >> 4) & 0x008;
+{   
+    unsigned content = mem->mem[PC & 0xFFF]*0x100 + mem->mem[(PC+1) & 0xFFF];
+    std::cout << "0x" << std::hex << std::setfill('0') << std::setw(4) << content << "\n";
+
+    nnn = content & 0xFFF;
+    kk = content & 0xFF;
+    x = (content >> 8) & 0xF;
+    y = (content >> 4) & 0xF;
     op = (content >> 12) & 0xF;
 
-    PC+=2;
-    // if (AddPC) // Checks if is necessary go to next opcode because some opcodes jump to some parts of memorys
-    //     PC+=2;
+    if (AddPC) // Checks if is necessary go to next opcode because some opcodes jump to some parts of memorys
+        PC+=2;
     
-    // AddPC = true; // Always reset the variable to goto next instruction
+    AddPC = true; // Always reset the variable to goto next instruction
 }
 void Chip8::Execute()
 {
@@ -71,27 +69,21 @@ void Chip8::Start(bool KeepAlive)
     ON_OFF = true;
     PC = 0x200;
 
-    // for (int i = 0; i < sizeof(mem->mem) - 0x200; i+=2)
-    // {
-    //     std::cout << "0x" << std::hex << std::setfill('0') << std::setw(4) << ((mem->mem[i+0x200] << 8) | (mem->mem[i+1+0x200])) << "\n";
-    //     std::cout << "PC test " << i + 0x200 << "\n";
-    // }; return;
-
     while (ON_OFF)
     {
-        while (PAUSE){continue;}
-
-        Fetch();
-        // Execute();
+        while (PAUSE) // Start a loop if is pause and keep checking if needs to change anything in IO devices
+        {
+            devcs->StartAll(WindowActive, SoundActive);
+            continue;
+        }
         
-        // std::cout << "Hexadecimal value: 0x" 
-        //     << std::setw(4) << std::setfill('0') << std::hex << std::uppercase << content
-        //     << std::endl;
-        Debug();
-
         devcs->StartAll(WindowActive, SoundActive);
 
-        if ((!KeepAlive && content==0x0) || !ON_OFF)
+        Fetch();
+        Execute();
+        Debug();
+
+        if (!KeepAlive || !ON_OFF)
             break;
     }
 

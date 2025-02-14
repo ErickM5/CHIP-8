@@ -6,7 +6,6 @@
 #include <iomanip>
 
 #define Opcodes(o) \
-    o("SYS", "0nnn", op==0x0 && nnn!=0 ,    PC=nnn; AddPC = false;) \
     o("CLS", "00E0", op==0x0 && y==0xE,     for(auto& i : FrameBuffer){i=0x0;}) \
     o("RET", "00EE", op==0x0 && kk==0xEE,   PC=0x200; AddPC = false;) \
     o("JP",  "1nnn", op==0x1,               PC=nnn; AddPC = false;) \
@@ -97,8 +96,6 @@ class Chip8
         uint8_t n; // last nibble register to indenfy differents opcodes
 
         uint8_t op; // opcode check
-
-        unsigned content;
 
         bool ON_OFF = true; // Set state of it is to be on or off
         bool PAUSE = false; // Set state of it is to be pause or not

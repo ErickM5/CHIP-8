@@ -114,14 +114,14 @@ void IODevices::StartAll(bool& Print, bool& Sound)
 {
     keyb->HandleEvent();
 
-    if (Print)
-    {
-        disp->Print();
-        Print = false;
-    }
+    // if (Print)
+    // {
+    //     disp->Print();
+    //     Print = false;
+    // }
 
     // if (Sound)
     //     sound->Play();
 
-    SDL_Delay(750);
+    SDL_Delay(550);
 }

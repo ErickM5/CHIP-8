@@ -31,9 +31,8 @@ class Memory
         Memory(const char* path);
 
         uint8_t mem[64*32] = {0};
-        void printKeY();
         void SetPtrs(uint16_t start, uint16_t end, uint8_t* list[]);
         void Write(uint8_t addr, uint8_t data);
 
-        uint8_t* Fetch(uint8_t addr);
+        void Fetch(uint8_t addr, uint8_t& content);
 };

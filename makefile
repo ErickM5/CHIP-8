@@ -5,7 +5,7 @@ LDFLAGS   = `sdl2-config --libs`
 SRC_DIR   = lib
 OBJS      = $(SRC_DIR)/chip8.o $(SRC_DIR)/memory.o $(SRC_DIR)/IOdevices.o
 
-all: clean main clean
+all: main clean free_display
 
 main: $(OBJS)
 	$(CXX) $(OBJS) -o main $(LDFLAGS)
@@ -24,3 +24,6 @@ remove:
 
 clean:
 	rm -f $(SRC_DIR)/*.o
+
+free_display:
+	clear
