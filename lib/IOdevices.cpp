@@ -18,9 +18,28 @@ void Display::Init()
 
 void Display::Print()
 {
-    std::cout << "requested to print" << "\n";
+    std::cout << "Draw as requested! " << "\n";
+    int x, y;
+    x = y = 0;
+    for (bool p: FrameBuffer)
+    {
+        std::cout << p;
+        // if (p)
+        // {
+        //     SDL_Rect pixel = {x*aspect_ratio, y*aspect_ratio, pixel_w*aspect_ratio, pixel_h*aspect_ratio};
+        //     SDL_RenderDrawRect(renderer, &pixel);
+        //     SDL_RenderPresent(renderer);
+        // }
+        y += y = 7 ? (y * -1) : 1;
+        x = y == 0 ? 1 : 0;
+    }
 }
-void Display::Clear(){}
+void Display::Clear(bool ClearFB)
+{
+    SDL_RenderClear(renderer);
+    if (ClearFB)
+        for(auto& i : FrameBuffer){i=0x0;}
+}
 Display::~Display()
 {
     SDL_DestroyWindow(window);
@@ -28,13 +47,14 @@ Display::~Display()
 }
 
 Sounder::Sounder(){}
-void Sounder::Play(){}
+void Sounder::Play(bool KeepOn){}
 void Sounder::Stop(){}
 
-Keyboard::Keyboard(bool* vON_OFFptr, bool* vPAUSEptr)
+Keyboard::Keyboard(bool* vON_OFFptr, bool* vPAUSEptr, bool* vWAITKEYptr)
 {
     ON_OFFptr = vON_OFFptr;
     PAUSEptr = vPAUSEptr;
+    WAITKEY = vWAITKEYptr;
 
     keys.insert({SDLK_0, 0x0});
     keys.insert({SDLK_1, 0x1});
@@ -72,7 +92,12 @@ void Keyboard::HandleEvent()
                         *ON_OFFptr = false; 
                         std::cout << *ON_OFFptr << "\n";
                         break;
-                    case SDLK_SPACE: 
+                    case SDLK_SPACE:
+                        if (*WAITKEY) 
+                        {
+                            *WAITKEY=false;
+                            break;
+                        }
                         *PAUSEptr = *PAUSEptr == false;
                         std::cout << "GAME PAUSED" << "\n";
                         std::cout << *PAUSEptr << "\n";
@@ -80,7 +105,7 @@ void Keyboard::HandleEvent()
 
                     default:
                         if (keys.find(event.key.keysym.sym) != keys.end())
-                            keys[event.key.keysym.sym] = true;
+                            keys[event.key.keysym.sym] = true; *WAITKEY=true;
 
                     break;
                 }
@@ -88,40 +113,4 @@ void Keyboard::HandleEvent()
                 break;
         }
     }
-}
-
-IODevices::~IODevices()
-{
-    disp->~Display();
-    sound->~Sounder();
-    keyb->~Keyboard();
-}
-
-IODevices::IODevices(bool* vON_OFFptr, bool* vPAUSEptr)
-{
-    std::cout << "Intinializing display controller" << "\n";
-    disp = new Display();
-    disp->Init();
-
-    std::cout << "Intinializing sound controller" << "\n";
-    sound = new Sounder();
-
-    std::cout << "Intinializing sound controller" << "\n";
-    keyb = new Keyboard(vON_OFFptr, vPAUSEptr);
-}
-
-void IODevices::StartAll(bool& Print, bool& Sound)
-{
-    keyb->HandleEvent();
-
-    // if (Print)
-    // {
-    //     disp->Print();
-    //     Print = false;
-    // }
-
-    // if (Sound)
-    //     sound->Play();
-
-    SDL_Delay(550);
 }

@@ -1,25 +1,21 @@
 #include <iostream>
-#include <iomanip>
-#include <fstream>
-#include <ios>
+#include <string.h>
 
 int main(int argc, char* argv[])
 {
-    char* path = argv[1];
-    FILE* f = fopen(path, "rb");
+    uint8_t a = 0b11110000;
+    bool b[8] = {false};
 
-    fseek(f, 0, SEEK_END);
-    auto l = ftell(f);
-    fseek(f, 0, SEEK_SET);
-    
-    uint8_t content[l+10];
+    std::cout << "Before insertion, size of a? " << sizeof(a) << " size of b " << sizeof(b)  << "\n";
+    for (bool& bb:b)
+        std::cout << (bool)bb << "\n";
 
-    fread(&content[10], sizeof(uint8_t), l, f);
+    memcpy(&b[0], &a, sizeof(a));
 
-    for (int i = 0; i < sizeof(content); i+=2)
-    {
-        std::cout << "0x" << std::hex << std::setfill('0') << std::setw(4) << ((content[i] << 8) | (content[i+1])) << "\n";
-    }
+    std::cout << "Before insertion, size of a? " << sizeof(a) << " size of b " << sizeof(b)  << "\n";
+    std::cout << "After insertion" << "\n";
+    for (bool& bb:b)
+        std::cout << (bool)bb << "\n";
     
     return 0;
 }

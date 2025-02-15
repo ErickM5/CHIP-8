@@ -6,77 +6,61 @@
 #include <iomanip>
 
 #define Opcodes(o) \
-    o("CLS", "00E0", op==0x0 && y==0xE,     for(auto& i : FrameBuffer){i=0x0;}) \
-    o("RET", "00EE", op==0x0 && kk==0xEE,   PC=0x200; AddPC = false;) \
-    o("JP",  "1nnn", op==0x1,               PC=nnn; AddPC = false;) \
-    o("CALL","2nnn", op==0x2,               SP++; PC=nnn; AddPC = false;) \
-    o("SE",  "3xkk", op==0x3,               PC+= V[x] == kk ? 2 : 0;) \
-    o("SNE", "4xkk", op==0x4,               PC+= V[x] != kk ? 2 : 0;) \
-    o("SE",  "5xy0", op==0x5,               PC+= V[x] == V[y] ? 2 : 0;) \
-    o("LD",  "6xkk", op==0x6,               V[x]=kk;) \
-    o("ADD", "7xkk", op==0x7,               V[x]+=kk;) \
-    o("LD",  "8xy0", op==0x8 && n==0x0,     V[x]=V[y];) \
-    o("OR",  "8xy1", op==0x8 && n==0x1,     V[x]|=V[y];) \
-    o("AND", "8xy2", op==0x8 && n==0x2,     V[x]&=V[y];) \
-    o("XOR", "8xy3", op==0x8 && n==0x3,     V[x]^=V[y];) \
-    o("ADD", "8xy4", op==0x8 && n==0x4,     V[x]+=V[y]; V[0xF]=((V[x]+=V[y])>>8)!=0;) \
-    o("SUB", "8xy5", op==0x8 && n==0x5,     V[x]-=V[y]; V[0xF]=V[x]>V[y];) \
-    o("SHR", "8xy6", op==0x8 && n==0x6,     V[x]=(V[x] >> 1);V[0xF]=(V[x]<<7)&0x1;) \
-    o("SUBN","8xy7", op==0x8 && n==0x7,     V[x]=V[x]-V[y]; V[0xF]=V[x]<V[y];) \
-    o("SHL", "8xyE", op==0x8 && n==0xE,     V[x]=(V[x] << 1);V[0xF]=(V[x]>>7)&0x1;) \
-    o("SNE", "9xy0", op==0x9,               PC+= V[x]!=V[y] ? 2 : 0; AddPC = false;) \
-    o("LD",  "Annn", op==0xA,               I = nnn;) \
-    o("JP",  "Bnnn", op==0xB,               PC = V[0x0] + nnn; AddPC = false;) \
-    o("RND", "Cxkk", op==0xC,               V[x]=(rand()%256)&kk;) \
-    o("DRW", "Dxyn", op==0xD,\
-        for (int i; i < n; i++){ \
-            for (int b =0; b < 8; b++){ \
-                *devcs->disp->FrameBuffer[i+b+1] = (((*FrameBuffer[i] >> b) & 0b1) ^ mem->mem[I+i]); \
-                V[0xF]=(((*FrameBuffer[i] >> b) & 0b1) ^ mem->mem[I+i]);WindowActive = true;}} \
-    )
-
-#define Debugger(d) \
-    d(op==0x0 && nnn!=0 ,   SetDebugText("SYS");) \
-    d(op==0x0 && y==0xE,    SetDebugText("CLS");) \
-    d(op==0x0 && kk==0xEE,  SetDebugText("RET");) \
-    d(op==0x1,              SetDebugText("JP");) \
-    d(op==0x2,              SetDebugText("CALL");) \
-    d(op==0x3,              SetDebugText("SE");) \
-    d(op==0x4,              SetDebugText("SNE");) \
-    d(op==0x5,              SetDebugText("SE");) \
-    d(op==0x6,              SetDebugText("LD");) \
-    d(op==0x7,              SetDebugText("ADD");) \
-    d(op==0x8 && n==0x0,    SetDebugText("LD");) \
-    d(op==0x8 && n==0x1,    SetDebugText("OR");) \
-    d(op==0x8 && n==0x2,    SetDebugText("AND");) \
-    d(op==0x8 && n==0x3,    SetDebugText("XOR");) \
-    d(op==0x8 && n==0x4,    SetDebugText("ADD");) \
-    d(op==0x8 && n==0x5,    SetDebugText("SUB");) \
-    d(op==0x8 && n==0x6,    SetDebugText("SHR");) \
-    d(op==0x8 && n==0x7,    SetDebugText("SUBN");) \
-    d(op==0x8 && n==0xE,    SetDebugText("SHL");) \
-    d(op==0x9,              SetDebugText("SNE");) \
-    d(op==0xA,              SetDebugText("LD");) \
-    d(op==0xB,              SetDebugText("JP");) \
-    d(op==0xC,              SetDebugText("RND");) \
-    d(op==0xD,              SetDebugText("DRW");)
+    o("CLS", "00E0", "a", op==0x0 && y==0xE,    for(auto& i : FrameBuffer){i=0x0;}) \
+    o("RET", "00EE", "a", op==0x0 && kk==0xEE,  PC=0x200; AddPC = false;) \
+    o("JP",  "1nnn", "a", op==0x1,              PC=nnn; AddPC = false;) \
+    o("CALL","2nnn", "a", op==0x2,              SP++; PC=nnn; AddPC = false;) \
+    o("SE",  "3xkk", "a", op==0x3,              PC+= V[x] == kk ? 2 : 0;) \
+    o("SNE", "4xkk", "a", op==0x4,              PC+= V[x] != kk ? 2 : 0;) \
+    o("SE",  "5xy0", "a", op==0x5,              PC+= V[x] == V[y] ? 2 : 0;) \
+    o("LD",  "6xkk", "a", op==0x6,              V[x]=kk;) \
+    o("ADD", "7xkk", "a", op==0x7,              V[x]+=kk;) \
+    o("LD",  "8xy0", "a", op==0x8 && n==0x0,    V[x]=V[y];) \
+    o("OR",  "8xy1", "a", op==0x8 && n==0x1,    V[x]|=V[y];) \
+    o("AND", "8xy2", "a", op==0x8 && n==0x2,    V[x]&=V[y];) \
+    o("XOR", "8xy3", "a", op==0x8 && n==0x3,    V[x]^=V[y];) \
+    o("ADD", "8xy4", "a", op==0x8 && n==0x4,    V[x]+=V[y]; V[0xF]=((V[x]+=V[y])>>8)!=0;) \
+    o("SUB", "8xy5", "a", op==0x8 && n==0x5,    V[x]-=V[y]; V[0xF]=V[x]>V[y];) \
+    o("SHR", "8xy6", "a", op==0x8 && n==0x6,    V[x]=(V[x] >> 1);V[0xF]=(V[x]<<7)&0x1;) \
+    o("SUBN","8xy7", "a", op==0x8 && n==0x7,    V[x]=V[x]-V[y]; V[0xF]=V[x]<V[y];) \
+    o("SHL", "8xyE", "a", op==0x8 && n==0xE,    V[x]=(V[x] << 1);V[0xF]=(V[x]>>7)&0x1;) \
+    o("SNE", "9xy0", "a", op==0x9,              PC+= V[x]!=V[y] ? 2 : 0; AddPC = false;) \
+    o("LD",  "Annn", "a", op==0xA,              I = nnn;) \
+    o("JP",  "Bnnn", "a", op==0xB,              PC = V[0x0] + nnn; AddPC = false;) \
+    o("RND", "Cxkk", "a", op==0xC,              V[x]=(rand()%256)&kk;) \
+    o("DRW", "Dxyn", "a", op==0xD,              ) \
+    o("SKP", "Ex9E", "a", op==0xE && kk==0x9E,  AddPC=keyb->CheckPressedKey(V[x]); PC+=AddPC ? 2 : 0;) \
+    o("SKNP","ExA1", "a", op==0xE && kk==0xA1,  AddPC=!keyb->CheckPressedKey(V[x]); PC+=!AddPC ? 2 : 0;) \
+    o("LD",  "Fx07", "a", op==0xF && kk==0x07,  V[x]=DT;) \
+    o("LD",  "Fx0A", "a", op==0xF && kk==0x0A,  WAITKEY=true;) \
+    o("LD",  "Fx15", "a", op==0xF && kk==0x15,  DT=V[x];) \
+    o("LD",  "Fx18", "a", op==0xF && kk==0x18,  SR=V[x];) \
+    o("ADD", "Fx1E", "a", op==0xF && kk==0x1E,  I+=V[x];) \
+    o("LD",  "Fx29", "a", op==0xF && kk==0x29,  I=V[x];) \
+    o("LD",  "Fx33", "a", op==0xF && kk==0x33,  mem->mem[I&0xFF]=(V[x]%10); \
+                                                mem->mem[(I+1)&&0xFF]=((V[x]-mem->mem[I&0xFF])%100); \
+                                                mem->mem[(I+2)&&0xFF]=(V[x]-(mem->mem[I&0xFF]+mem->mem[(I+1)&&0xFF]));) \
+    o("LD",  "Fx55", "a", op==0xF && kk==0x55,  int i=0; for(auto& vl : V) {mem->mem[I+(i++)]=vl;}) \
+    o("LD",  "Fx65", "a", op==0xF && kk==0x65,  int i=0; for(auto& vl : V) {vl=mem->mem[I+(i++)];})
 
 class Chip8
 {
     private:
-
         uint8_t V[16]; // V0 -> VF registers
         uint16_t I; // Index register
+        uint16_t PC; // Program counter register
         uint8_t SP; // Stack pointer register
         uint8_t TR; // Time register
         uint8_t SR; // Sound register
-        uint16_t PC; // Program counter register
+        uint8_t DT; // Delay Timer
 
         uint8_t* FrameBuffer[64*32/8]; // 64:32 length but each byte in horizontal represents 8 pixels (1 pixel -> 1 bit)
         uint8_t* Stack[96]; // Stack pointer list pointing to memory
 
         Memory* mem = nullptr; // memory object pointer
-        IODevices* devcs = nullptr; // devices (sound and display) pointers
+        Sounder* sound = nullptr; // device (sound) pointer
+        Keyboard* keyb = nullptr; // device (keybord) pointer
+        Display* disp = nullptr; // device (window) pointer
         
         bool WindowActive = false; // Tells if is necessary to call display device
         bool SoundActive = true; // Tells if is necessary to call Sound device
@@ -84,6 +68,8 @@ class Chip8
         bool AddPC = true; // Garantee if is necessary step next instruction
 
         void SetDebugText(std::string Text); // Prepare the text to generate the 
+
+        unsigned content; // content will handle everything
 
         bool Terminal = false; // Debug on the Terminal
         bool Screen = false; // Debug on the Screen
@@ -99,6 +85,7 @@ class Chip8
 
         bool ON_OFF = true; // Set state of it is to be on or off
         bool PAUSE = false; // Set state of it is to be pause or not
+        bool WAITKEY = false; // Wait till a key be press
 
         Chip8(const char* path); // Constructor
 
