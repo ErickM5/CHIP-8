@@ -18,21 +18,18 @@ Chip8::Chip8(const char* path)
     mem = new Memory(path);
 
     std::cout << "Starting IODevices" << "\n";
-
     disp = new Display();
+    disp->Init();
+
     sound = new Sounder();
     keyb = new Keyboard(&ON_OFF, &PAUSE, &WAITKEY);
-    
-    std::cout << "Setting memory pointers" << "\n";
-    mem->SetPtrs(0xEA0, 0xEFF, Stack);
-    
-    std::cout << "Inserting the program" << "\n";
-    
+
     PC = 0x200;
 }
 
 void Chip8::Fetch()
-{   
+{
+    oldcontent = content;
     content = mem->mem[PC & 0xFFF]*0x100 + mem->mem[(PC+1) & 0xFFF];
 
     nnn = content & 0xFFF;
@@ -40,11 +37,11 @@ void Chip8::Fetch()
     x = (content >> 8) & 0xF;
     y = (content >> 4) & 0xF;
     op = (content >> 12) & 0xF;
-    
-    if (AddPC) // Checks if is necessary go to next opcode because some opcodes jump to some parts of memorys
+
+    if (AddPC)
         PC+=2;
-    
-    AddPC = true; // Always reset the variable to goto next instruction
+
+    AddPC = true;
 }
 void Chip8::Execute()
 {
@@ -52,14 +49,21 @@ void Chip8::Execute()
     Opcodes(o) {}
     #undef o
 }
+
 void Chip8::Debug()
 {
     std::cout << "0x" << std::hex << std::setfill('0') << std::setw(4) << content << "\n";
-}
 
-void Chip8::SetDebugText(std::string text)
-{
-    std::cout << text << "\n";
+    unsigned Type = Terminal;
+
+    if(Terminal)
+    {
+        // Debug in terminal texts
+    }
+    if(Screen)
+    {
+        // Debug in screen texts
+    }
 }
 
 void Chip8::Start(bool KeepAlive)
@@ -67,24 +71,28 @@ void Chip8::Start(bool KeepAlive)
     ON_OFF = true;
     PC = 0x200;
 
+    VF = &V[0xF];
+    Vx = &V[x];
+    Vy = &V[y];
+
     while (ON_OFF)
     {
-        if(WindowActive) disp->Print();
+        keyb->HandleEvent();
+        disp->Print();
         SoundActive ? sound->Play(false) : sound->Stop();
 
-        if (PAUSE || WAITKEY) continue; // Start a loop if is pause and keep checking if needs to change anything in IO devices
+        if (PAUSE || WAITKEY) continue;
 
-        Fetch(); // Fetch instruction and its paratmers
-        Execute(); // Execute respective opcode
-        Debug(); // Debug if necessary
+        Fetch();
+        Execute();
+        Debug();
 
         if (!KeepAlive || !ON_OFF)
             break;
     }
 
     std::cout << "Turning off CHIP-8..." << "\n";
-    
-    disp->~Display();
 
+    disp->~Display();
     mem->~Memory();
 }

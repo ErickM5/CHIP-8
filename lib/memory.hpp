@@ -30,9 +30,7 @@ class Memory
     public:
         Memory(const char* path);
 
+        unsigned file_length = 0x0;
         uint8_t mem[64*32] = {0};
-        void SetPtrs(uint16_t start, uint16_t end, uint8_t* list[]);
-        void Write(uint8_t addr, uint8_t data);
-
-        void Fetch(uint8_t addr, uint8_t& content);
+        uint8_t stack[12] = {0};
 };

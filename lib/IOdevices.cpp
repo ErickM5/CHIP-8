@@ -18,21 +18,31 @@ void Display::Init()
 
 void Display::Print()
 {
-    std::cout << "Draw as requested! " << "\n";
-    int x, y;
-    x = y = 0;
-    for (bool p: FrameBuffer)
-    {
-        std::cout << p;
-        // if (p)
-        // {
-        //     SDL_Rect pixel = {x*aspect_ratio, y*aspect_ratio, pixel_w*aspect_ratio, pixel_h*aspect_ratio};
-        //     SDL_RenderDrawRect(renderer, &pixel);
-        //     SDL_RenderPresent(renderer);
-        // }
-        y += y = 7 ? (y * -1) : 1;
-        x = y == 0 ? 1 : 0;
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+    SDL_RenderClear(renderer);
+
+    const int bytesPerRow = win_w / 8;
+
+    for (int row = 0; row < win_h; ++row) {
+        for (int col = 0; col < win_w; ++col) {
+            int byteIndex = row * bytesPerRow + (col / 8);
+            int bitIndex = 7 - (col % 8);
+
+            bool pixelOn = (FrameBuffer[byteIndex] >> bitIndex) & 1;
+            if (pixelOn) {
+                SDL_Rect rect;
+                rect.x = col * aspect_ratio;
+                rect.y = row * aspect_ratio;
+                rect.w = aspect_ratio;
+                rect.h = aspect_ratio;
+
+                SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+                SDL_RenderFillRect(renderer, &rect);
+            }
+        }
     }
+    SDL_Delay(100);
+    SDL_RenderPresent(renderer);
 }
 void Display::Clear(bool ClearFB)
 {
@@ -113,4 +123,8 @@ void Keyboard::HandleEvent()
                 break;
         }
     }
+}
+bool Keyboard::CheckPressedKey(uint8_t key)
+{
+    return keys[key];
 }
