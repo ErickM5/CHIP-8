@@ -1,5 +1,10 @@
 #include "IOdevices.hpp"
 
+Display::Display(uint8_t* CollPtr)
+{
+    collision = CollPtr;
+}
+
 void Display::Init()
 {
     std::cout << "Initializing display device" << "\n";
@@ -20,27 +25,26 @@ void Display::Print()
 {
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     SDL_RenderClear(renderer);
+    bool pixelOn;
 
-    const int bytesPerRow = win_w / 8;
+    int x, y = 0;
+    for (int i = 0; i < sizeof(FrameBuffer) * 8; i++)
+    {
+        y = i/32;
+        x = i%64;
+        pixelOn = (FrameBuffer[i/8]>>(i%8))>0;
 
-    for (int row = 0; row < win_h; ++row) {
-        for (int col = 0; col < win_w; ++col) {
-            int byteIndex = row * bytesPerRow + (col / 8);
-            int bitIndex = 7 - (col % 8);
-
-            bool pixelOn = (FrameBuffer[byteIndex] >> bitIndex) & 1;
-            if (pixelOn) {
-                SDL_Rect rect;
-                rect.x = col * aspect_ratio;
-                rect.y = row * aspect_ratio;
-                rect.w = aspect_ratio;
-                rect.h = aspect_ratio;
-
-                SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-                SDL_RenderFillRect(renderer, &rect);
-            }
+        SDL_Rect rect = {x * aspect_ratio, y * aspect_ratio,aspect_ratio,aspect_ratio};
+        if (pixelOn) {
+            // std::cout << "■";
+            SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+        }else{
+            // std::cout << " ";
+            SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
         }
+        SDL_RenderFillRect(renderer, &rect);
     }
+
     SDL_Delay(100);
     SDL_RenderPresent(renderer);
 }
@@ -97,7 +101,6 @@ void Keyboard::HandleEvent()
                 switch(event.key.keysym.sym)
                 {
                     std::cout << event.key.keysym.sym << "\n";
-                    // std::cout << *ON_OFFptr << "\n";
                     case SDLK_ESCAPE: 
                         *ON_OFFptr = false; 
                         std::cout << *ON_OFFptr << "\n";
@@ -109,8 +112,6 @@ void Keyboard::HandleEvent()
                             break;
                         }
                         *PAUSEptr = *PAUSEptr == false;
-                        std::cout << "GAME PAUSED" << "\n";
-                        std::cout << *PAUSEptr << "\n";
                         break;
 
                     default:

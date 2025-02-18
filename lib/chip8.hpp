@@ -5,13 +5,11 @@
 #include <string>
 #include <iomanip>
 
-// Approach inspired by https://bisqwit.iki.fi/jutut/kuvat/programming_examples/chip8/chip8.cc but addpted
-// Opcode Draw equal to his approach
 #define Opcodes(o) \
     o("CLS", "00E0", "a", op==0x0 && y==0xE,    for(auto i : disp->FrameBuffer){i=0x0;}) \
     o("RET", "00EE", "a", op==0x0 && kk==0xEE,  PC=mem->stack[SP--]; AddPC = false;) \
     o("JP",  "1nnn", "a", op==0x1,              PC=nnn; AddPC = false;) \
-    o("CALL","2nnn", "a", op==0x2,              mem->stack[SP++] = PC; PC = nnn; AddPC = false;) \
+    o("CALL","2nnn", "a", op==0x2,              mem->stack[++SP] = PC; PC = nnn; AddPC = false;) \
     o("SE",  "3xkk", "a", op==0x3,              PC+= *Vx == kk ? 2 : 0;) \
     o("SNE", "4xkk", "a", op==0x4,              PC+= *Vx != kk ? 2 : 0;) \
     o("SE",  "5xy0", "a", op==0x5,              PC+= *Vx == *Vy ? 2 : 0;) \
@@ -31,11 +29,9 @@
     o("JP",  "Bnnn", "a", op==0xB,              PC = V[0x0] + nnn; AddPC = false;) \
     o("RND", "Cxkk", "a", op==0xC,              *Vx=(rand()%256)&kk;) \
     o("DRW", "Dxyn", "a", op==0xD,              \
-        auto put = [this](int a, unsigned char b) { return ((disp->FrameBuffer[a] ^= b) ^ b) & b; }; \
-            for(kk=0, x=*Vx, y=*Vy; n--; ) \
-                kk |= put( ((x+0)%64 + (y+n)%32 * 64) / 8, mem->mem[(I+n)&0xFFF] >> (    x%8) ) \
-                   |  put( ((x+7)%64 + (y+n)%32 * 64) / 8, mem->mem[(I+n)&0xFFF] << (8 - x%8) ); \
-            *VF = (kk != 0); WindowActive=true;)\
+            for (unsigned i=0, ind=0x0, bb=0x0, nn=n; i<n; i++, ind = ((*Vx+i)%64 + ((*Vy+nn--)%32 * 64)) / 8, bb=disp->FrameBuffer[ind]) \
+                *VF = (byte = (byte << 8) | ((~(disp->FrameBuffer[ind] ^= mem->mem[I+i]))&bb)) > 0; \
+            WindowActive=true;) \
     o("SKP", "Ex9E", "a", op==0xE && kk==0x9E,  AddPC=keyb->CheckPressedKey(*Vx); PC+=AddPC ? 2 : 0;) \
     o("SKNP","ExA1", "a", op==0xE && kk==0xA1,  AddPC=!keyb->CheckPressedKey(*Vx); PC+=!AddPC ? 2 : 0;) \
     o("LD",  "Fx07", "a", op==0xF && kk==0x07,  *Vx=DT;) \
@@ -83,6 +79,7 @@ class Chip8
         uint8_t     y;      // the second register or Y register (y=1 -> V[1])
         uint8_t     n;      // last nibble register to indenfy differents opcodes
         uint8_t     op;     // opcode value holder
+        unsigned    byte;   // variable designed to handle more informations for macros
 
         uint8_t*    Vx = nullptr; // pre loaded register V[x]
         uint8_t*    Vy = nullptr; // pre loaded register V[y]

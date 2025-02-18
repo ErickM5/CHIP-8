@@ -24,9 +24,10 @@ struct Display
     
     public:
 
-        bool* collision = nullptr;      // check if occuried any collision
+        uint8_t* collision = nullptr;      // check if occuried any collision
         uint8_t FrameBuffer[64*32/8];   // pixels informations (just read from original framebuffer in memory)
 
+        Display(uint8_t* CollPtr);
         ~Display();
         
         void Init();                // Function to init all main display

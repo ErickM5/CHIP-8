@@ -18,7 +18,7 @@ Chip8::Chip8(const char* path)
     mem = new Memory(path);
 
     std::cout << "Starting IODevices" << "\n";
-    disp = new Display();
+    disp = new Display(VF);
     disp->Init();
 
     sound = new Sounder();
@@ -78,14 +78,14 @@ void Chip8::Start(bool KeepAlive)
     while (ON_OFF)
     {
         keyb->HandleEvent();
-        disp->Print();
+        if (WindowActive) {disp->Print(); WindowActive=false;}
         SoundActive ? sound->Play(false) : sound->Stop();
 
         if (PAUSE || WAITKEY) continue;
 
         Fetch();
         Execute();
-        Debug();
+        // Debug();
 
         if (!KeepAlive || !ON_OFF)
             break;
